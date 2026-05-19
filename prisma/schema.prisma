@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ALUNO
+  PROFESSOR
+  ADMIN
+}
+
+enum StatusUsuario {
+  ATIVO
+  INATIVO
+  SUSPENSO
+}
+
+enum NivelCurso {
+  INICIANTE
+  INTERMEDIARIO
+  AVANCADO
+}
+
+enum TipoAcesso {
+  GRATUITO
+  COMPRA_AVULSA
+  ASSINATURA_ATIVA
+}
+
+enum StatusTransacao {
+  PENDENTE
+  APROVADO
+  RECUSADO
+  ESTORNADO
+}
+
+model User {
+  id                 String             @id @default(uuid())
+  nome               String
+  email              String             @unique
+  senha              String
+  avatar             String?
+  role               Role               @default(ALUNO)
+  status             StatusUsuario      @default(ATIVO)
+  xpTotal            Int                @default(0)
+  nivel              Int                @default(1)
+  streak             Int                @default(0)
+  mpCustomerId       String?            @unique
+  hasActiveSub       Boolean            @default(false)
+  subExpiresAt       DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  cursosCriados      Curso[]            @relation("CursosCriados")
+  matriculas         Matricula[]
+  progressos         ProgressoAula[]
+  conquistas         UsuarioConquista[]
+  progressoDiario    ProgressoDiario[]
+  transacoes         Transacao[]
+
+  @@map("users")
+}
+
+model Curso {
+  id                 String         @id @default(uuid())
+  titulo             String
+  slug               String         @unique
+  descricao          String
+  resumo             String?
+  imagem             String?
+  isPremium          Boolean        @default(true)
+  preco              Float?
+  publico            Boolean        @default(true)
+  cargaHoraria       Int?
+  nivel              NivelCurso     @default(INICIANTE)
+  categoria          String?
+
+  criadoPorId        String?
+  criadoPor          User?          @relation("CursosCriados", fields: [criadoPorId], references: [id], onDelete: SetNull)
+
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  modulos            Modulo[]
+  matriculas         Matricula[]
+
+  @@map("courses")
+}
+
+model Modulo {
+  id                 String         @id @default(uuid())
+  titulo             String
+  descricao          String?
+  ordem              Int
+
+  cursoId            String
+  curso              Curso          @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+
+  aulas              Aula[]
+
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@map("modules")
+}
+
+model Aula {
+  id                 String             @id @default(uuid())
+  titulo             String
+  slug               String
+  descricao          String?
+  conteudo           String?            @db.Text
+  videoUrl           String?
+  duracao            Int?
+  ordem              Int
+  isGratuita         Boolean            @default(false)
+
+  moduloId           String
+  modulo             Modulo             @relation(fields: [moduloId], references: [id], onDelete: Cascade)
+
+  progressos         ProgressoAula[]
+  anexos             Anexo[]
+
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@map("lessons")
+}
+
+model Anexo {
+  id                 String         @id @default(uuid())
+  nome               String
+  url                String
+  tipo               String
+  tamanho            Int?
+
+  aulaId             String
+  aula               Aula           @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+
+  createdAt          DateTime       @default(now())
+
+  @@map("attachments")
+}
+
+model Matricula {
+  id                 String         @id @default(uuid())
+
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  cursoId            String
+  curso              Curso          @relation(fields: [cursoId], references: [id], onDelete: Cascade)
+
+  tipoAcesso         TipoAcesso     @default(COMPRA_AVULSA)
+
+  progresso          Float          @default(0)
+  concluido          Boolean        @default(false)
+  dataConclusao      DateTime?
+
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@unique([userId, cursoId])
+  @@map("enrollments")
+}
+
+model ProgressoAula {
+  id                 String         @id @default(uuid())
+
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  aulaId             String
+  aula               Aula           @relation(fields: [aulaId], references: [id], onDelete: Cascade)
+
+  concluida          Boolean        @default(false)
+  tempoAssistido     Int?
+  notas              String?        @db.Text
+  concluidaEm        DateTime?
+
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@unique([userId, aulaId])
+  @@map("lesson_progress")
+}
+
+model Transacao {
+  id                 String              @id @default(uuid())
+
+  userId             String
+  user               User                @relation(fields: [userId], references: [id])
+
+  mpPaymentId        String              @unique
+  valorTotal         Float
+  status             StatusTransacao     @default(PENDENTE)
+
+  metodoPagamento    String
+  referenciaCompra   String
+  linkPagamento      String?
+
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@map("transactions")
+}
+
+model Conquista {
+  id                 String                 @id @default(uuid())
+  titulo             String
+  descricao          String
+  icone              String
+  cor                String
+  xpRecompensa       Int                    @default(10)
+
+  createdAt          DateTime               @default(now())
+
+  usuarios           UsuarioConquista[]
+
+  @@map("achievements")
+}
+
+model UsuarioConquista {
+  id                 String         @id @default(uuid())
+
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  conquistaId        String
+  conquista          Conquista      @relation(fields: [conquistaId], references: [id], onDelete: Cascade)
+
+  desbloqueadaEm     DateTime       @default(now())
+
+  @@unique([userId, conquistaId])
+  @@map("user_achievements")
+}
+
+model ProgressoDiario {
+  id                 String         @id @default(uuid())
+
+  userId             String
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  data               DateTime       @default(now()) @db.Date
+
+  xpGanho            Int            @default(0)
+  calculos           Int            @default(0)
+  exercicios         Int            @default(0)
+
+  @@unique([userId, data])
+  @@map("daily_progress")
+}
