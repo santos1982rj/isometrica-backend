@@ -7,6 +7,7 @@ import { authRoutes } from './features/auth/auth.routes';
 import { studentsRoutes } from './features/students/students.routes';
 import { coursesRoutes } from './features/courses/courses.routes';
 import { lessonsRoutes } from './features/lessons/lessons.routes';
+import { progressRoutes } from './features/progress/progress.routes';
 
 export const app = express();
 
@@ -25,5 +26,6 @@ app.use('/auth', authRoutes);
 app.use('/students', studentsRoutes);
 app.use('/courses', coursesRoutes);
 app.use('/lessons', lessonsRoutes);
+app.use('/progress', progressRoutes);
 
 app.use(errorHandler);
