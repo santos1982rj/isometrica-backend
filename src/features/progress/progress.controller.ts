@@ -3,24 +3,19 @@ import { Request, Response } from 'express';
 import {
   completeLesson,
   getStudentProgress,
+  updateLessonNotes,
+  updateLessonWatchTime,
 } from './progress.service';
 import { AppError } from '../../core/errors/AppError';
 
-/**
- * Controller responsável por marcar uma aula como concluída.
- *
- * @param request Requisição HTTP com usuário autenticado e lessonId.
- * @param response Resposta HTTP com progresso atualizado.
- * @throws AppError quando o usuário não está autenticado.
- */
 export async function completeLessonController(
   request: Request,
   response: Response,
 ) {
-  const userId = request.user?.id;
+  const actor = request.user;
   const lessonId = request.params.lessonId;
 
-  if (!userId) {
+  if (!actor) {
     throw new AppError('Usuário não autenticado.', 401);
   }
 
@@ -28,20 +23,13 @@ export async function completeLessonController(
     throw new AppError('ID da aula inválido.', 400);
   }
 
-  const progress = await completeLesson(userId, lessonId);
+  const progress = await completeLesson(actor, lessonId);
 
   return response.status(201).json({
     progress,
   });
 }
 
-/**
- * Controller responsável por listar o progresso do usuário autenticado.
- *
- * @param request Requisição HTTP com usuário autenticado.
- * @param response Resposta HTTP com progresso do usuário.
- * @throws AppError quando o usuário não está autenticado.
- */
 export async function getMyProgressController(
   request: Request,
   response: Response,
@@ -53,6 +41,68 @@ export async function getMyProgressController(
   }
 
   const progress = await getStudentProgress(userId);
+
+  return response.status(200).json({
+    progress,
+  });
+}
+
+export async function updateLessonWatchTimeController(
+  request: Request,
+  response: Response,
+) {
+  const actor = request.user;
+  const lessonId = request.params.lessonId;
+  const { tempoAssistido } = request.body as {
+    tempoAssistido?: unknown;
+  };
+
+  if (!actor) {
+    throw new AppError('Usuário não autenticado.', 401);
+  }
+
+  if (!lessonId || Array.isArray(lessonId)) {
+    throw new AppError('ID da aula inválido.', 400);
+  }
+
+  if (typeof tempoAssistido !== 'number') {
+    throw new AppError('Tempo assistido inválido.', 400);
+  }
+
+  const progress = await updateLessonWatchTime(
+    actor,
+    lessonId,
+    tempoAssistido,
+  );
+
+  return response.status(200).json({
+    progress,
+  });
+}
+
+export async function updateLessonNotesController(
+  request: Request,
+  response: Response,
+) {
+  const actor = request.user;
+  const lessonId = request.params.lessonId;
+  const { notas } = request.body as {
+    notas?: unknown;
+  };
+
+  if (!actor) {
+    throw new AppError('Usuário não autenticado.', 401);
+  }
+
+  if (!lessonId || Array.isArray(lessonId)) {
+    throw new AppError('ID da aula inválido.', 400);
+  }
+
+  if (typeof notas !== 'string') {
+    throw new AppError('Notas inválidas.', 400);
+  }
+
+  const progress = await updateLessonNotes(actor, lessonId, notas);
 
   return response.status(200).json({
     progress,

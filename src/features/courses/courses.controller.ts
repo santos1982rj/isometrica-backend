@@ -1,33 +1,23 @@
 import { Request, Response } from 'express';
 
+import { AppError } from '../../core/errors/AppError';
 import {
+  enrollFreeCourse,
   getPublicCourseBySlug,
   listPublicCourses,
 } from './courses.service';
 
-/**
- * Controller responsável por listar cursos públicos.
- *
- * @param request Requisição HTTP.
- * @param response Resposta HTTP com lista de cursos.
- */
 export async function listCoursesController(
   request: Request,
   response: Response,
 ) {
-  const courses = await listPublicCourses();
+  const courses = await listPublicCourses(request.user?.id);
 
   return response.status(200).json({
     courses,
   });
 }
 
-/**
- * Controller responsável por buscar curso pelo slug.
- *
- * @param request Requisição HTTP contendo slug do curso.
- * @param response Resposta HTTP com dados completos do curso.
- */
 export async function getCourseBySlugController(
   request: Request,
   response: Response,
@@ -41,9 +31,31 @@ export async function getCourseBySlugController(
     });
   }
 
-  const course = await getPublicCourseBySlug(slug);
+  const course = await getPublicCourseBySlug(slug, request.user);
 
   return response.status(200).json({
     course,
+  });
+}
+
+export async function enrollFreeCourseController(
+  request: Request,
+  response: Response,
+) {
+  const userId = request.user?.id;
+  const courseId = request.params.courseId;
+
+  if (!userId) {
+    throw new AppError('Usuário não autenticado.', 401);
+  }
+
+  if (!courseId || Array.isArray(courseId)) {
+    throw new AppError('Curso inválido.', 400);
+  }
+
+  const enrollment = await enrollFreeCourse(courseId, userId);
+
+  return response.status(201).json({
+    enrollment,
   });
 }

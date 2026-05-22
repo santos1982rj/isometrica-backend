@@ -1,8 +1,8 @@
 import { Router } from 'express';
 
-import { authMiddleware } from '../../core/middlewares/authMiddleware';
+import { optionalAuthMiddleware } from '../../core/middlewares/optionalAuthMiddleware';
 import { getLessonController } from './lessons.controller';
 
 export const lessonsRoutes = Router();
 
-lessonsRoutes.get('/:id', authMiddleware, getLessonController);
+lessonsRoutes.get('/:id', optionalAuthMiddleware, getLessonController);

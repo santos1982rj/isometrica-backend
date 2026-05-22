@@ -1,7 +1,14 @@
 import { prisma } from '../../config/prisma';
 import { AppError } from '../../core/errors/AppError';
 
-export async function getLessonById(lessonId: string) {
+import { hasLessonAccess } from './lesson-access.service';
+
+import type { AuthUser } from '../auth/auth.types';
+
+export async function getLessonById(
+  lessonId: string,
+  actor?: AuthUser,
+) {
   const lesson = await prisma.aula.findUnique({
     where: {
       id: lessonId,
@@ -26,6 +33,7 @@ export async function getLessonById(lessonId: string) {
               titulo: true,
               slug: true,
               isPremium: true,
+              criadoPorId: true,
             },
           },
         },
@@ -37,5 +45,27 @@ export async function getLessonById(lessonId: string) {
     throw new AppError('Aula não encontrada.', 404);
   }
 
-  return lesson;
+  const canAccess = await hasLessonAccess(actor, {
+    id: lesson.id,
+    isGratuita: lesson.isGratuita,
+    modulo: {
+      curso: {
+        id: lesson.modulo.curso.id,
+        isPremium: lesson.modulo.curso.isPremium,
+        criadoPorId: lesson.modulo.curso.criadoPorId,
+      },
+    },
+  });
+  const { criadoPorId, ...course } = lesson.modulo.curso;
+
+  return {
+    ...lesson,
+    conteudo: canAccess ? lesson.conteudo : null,
+    videoUrl: canAccess ? lesson.videoUrl : null,
+    locked: !canAccess,
+    modulo: {
+      ...lesson.modulo,
+      curso: course,
+    },
+  };
 }
