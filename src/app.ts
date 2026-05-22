@@ -19,15 +19,21 @@ import { env } from './config/env';
 
 export const app = express();
 
-const allowedOrigins = [
+const configuredFrontendOrigins = env.FRONTEND_URL
+  ?.split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean) ?? [];
+
+const allowedOrigins = new Set([
   'http://localhost:5173',
-  env.FRONTEND_URL,
-].filter(Boolean) as string[];
+  'https://isometrica-frontend-production.up.railway.app',
+  ...configuredFrontendOrigins,
+]);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.has(origin)) {
         callback(null, true);
         return;
       }
