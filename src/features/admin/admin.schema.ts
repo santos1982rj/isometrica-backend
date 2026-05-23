@@ -79,3 +79,39 @@ export const updateTrackingSettingsSchema = z.object({
 export type UpdateTrackingSettingsInput = z.infer<
   typeof updateTrackingSettingsSchema
 >;
+
+const nullableText = (max = 2400) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .transform((value) => value || null);
+
+const nullableUrl = z
+  .string()
+  .trim()
+  .max(2048)
+  .transform((value) => value || null)
+  .refine((value) => value === null || URL.canParse(value), 'Informe uma URL valida.');
+
+export const updatePlatformSettingsSchema = z.object({
+  platformName: nullableText(80),
+  logoUrl: nullableUrl,
+  faviconUrl: nullableUrl,
+  supportWhatsapp: nullableText(40),
+  supportEmail: z
+    .string()
+    .trim()
+    .max(160)
+    .transform((value) => value || null)
+    .refine((value) => value === null || z.string().email().safeParse(value).success, 'Informe um e-mail valido.'),
+  instagramUrl: nullableUrl,
+  youtubeUrl: nullableUrl,
+  linkedinUrl: nullableUrl,
+  termsContent: nullableText(20000),
+  privacyContent: nullableText(20000),
+});
+
+export type UpdatePlatformSettingsInput = z.infer<
+  typeof updatePlatformSettingsSchema
+>;

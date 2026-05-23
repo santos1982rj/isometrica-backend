@@ -348,6 +348,16 @@ model TentativaExercicio {
 
 model ConfiguracaoPlataforma {
   id                           String   @id
+  platformName                 String?
+  logoUrl                      String?
+  faviconUrl                   String?
+  supportWhatsapp              String?
+  supportEmail                 String?
+  instagramUrl                 String?
+  youtubeUrl                   String?
+  linkedinUrl                  String?
+  termsContent                 String?  @db.Text
+  privacyContent               String?  @db.Text
   googleTagManagerId           String?
   googleAnalyticsMeasurementId String?
   metaPixelId                  String?

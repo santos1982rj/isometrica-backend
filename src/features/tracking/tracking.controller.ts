@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import { getTrackingSettings } from '../admin/admin.service';
+import { getPlatformSettings, getTrackingSettings } from '../admin/admin.service';
 
 export async function getPublicTrackingConfigController(
   request: Request,
@@ -14,5 +14,16 @@ export async function getPublicTrackingConfigController(
       googleAnalyticsMeasurementId: settings.googleAnalyticsMeasurementId,
       metaPixelId: settings.metaPixelId,
     },
+  });
+}
+
+export async function getPublicPlatformConfigController(
+  request: Request,
+  response: Response,
+) {
+  const settings = await getPlatformSettings();
+
+  return response.status(200).json({
+    platform: settings,
   });
 }

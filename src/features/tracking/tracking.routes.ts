@@ -1,7 +1,11 @@
 import { Router } from 'express';
 
-import { getPublicTrackingConfigController } from './tracking.controller';
+import {
+  getPublicPlatformConfigController,
+  getPublicTrackingConfigController,
+} from './tracking.controller';
 
 export const trackingRoutes = Router();
 
 trackingRoutes.get('/config', getPublicTrackingConfigController);
+trackingRoutes.get('/platform', getPublicPlatformConfigController);

@@ -7,6 +7,7 @@ import { validateRequest } from '../../core/middlewares/validateRequest';
 
 import {
   getAdminOverviewController,
+  getPlatformSettingsController,
   getTrackingSettingsController,
   listAdminCoursesController,
   listAdminTransactionsController,
@@ -15,6 +16,7 @@ import {
   updateCourseCommercialController,
   updateCourseSalesController,
   updateLessonPreviewController,
+  updatePlatformSettingsController,
   updateTrackingSettingsController,
   updateUserAccessController,
 } from './admin.controller';
@@ -23,6 +25,7 @@ import {
   updateCourseCommercialSchema,
   updateCourseSalesSchema,
   updateLessonPreviewSchema,
+  updatePlatformSettingsSchema,
   updateTrackingSettingsSchema,
   updateUserAccessSchema,
 } from './admin.schema';
@@ -36,6 +39,7 @@ adminRoutes.get('/users', listAdminUsersController);
 adminRoutes.get('/courses', listAdminCoursesController);
 adminRoutes.get('/transactions', listAdminTransactionsController);
 adminRoutes.get('/settings/tracking', getTrackingSettingsController);
+adminRoutes.get('/settings/platform', getPlatformSettingsController);
 
 adminRoutes.put(
   '/users/:userId/access',
@@ -71,4 +75,10 @@ adminRoutes.put(
   '/settings/tracking',
   validateRequest(updateTrackingSettingsSchema),
   updateTrackingSettingsController,
+);
+
+adminRoutes.put(
+  '/settings/platform',
+  validateRequest(updatePlatformSettingsSchema),
+  updatePlatformSettingsController,
 );

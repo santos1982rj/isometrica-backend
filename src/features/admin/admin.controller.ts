@@ -5,6 +5,7 @@ import { AppError } from '../../core/errors/AppError';
 import {
   getAdminOverview,
   getTrackingSettings,
+  getPlatformSettings,
   listAdminCourses,
   listAdminTransactions,
   listAdminUsers,
@@ -12,6 +13,7 @@ import {
   updateCourseCommercial,
   updateCourseSales,
   updateLessonPreview,
+  updatePlatformSettings,
   updateTrackingSettings,
   updateUserAccess,
 } from './admin.service';
@@ -145,6 +147,28 @@ export async function getTrackingSettingsController(
   response: Response,
 ) {
   const settings = await getTrackingSettings();
+
+  return response.status(200).json({
+    settings,
+  });
+}
+
+export async function getPlatformSettingsController(
+  request: Request,
+  response: Response,
+) {
+  const settings = await getPlatformSettings();
+
+  return response.status(200).json({
+    settings,
+  });
+}
+
+export async function updatePlatformSettingsController(
+  request: Request,
+  response: Response,
+) {
+  const settings = await updatePlatformSettings(request.body);
 
   return response.status(200).json({
     settings,

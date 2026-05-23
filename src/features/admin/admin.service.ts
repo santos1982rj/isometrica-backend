@@ -5,6 +5,7 @@ import type {
   UpdateCourseCommercialInput,
   UpdateCourseSalesInput,
   UpdateLessonPreviewInput,
+  UpdatePlatformSettingsInput,
   UpdateCourseStatusInput,
   UpdateTrackingSettingsInput,
   UpdateUserAccessInput,
@@ -392,6 +393,71 @@ export async function getTrackingSettings() {
       updatedAt: null,
     }
   );
+}
+
+export async function getPlatformSettings() {
+  const settings = await prisma.configuracaoPlataforma.findUnique({
+    where: {
+      id: PLATFORM_SETTINGS_ID,
+    },
+    select: {
+      platformName: true,
+      logoUrl: true,
+      faviconUrl: true,
+      supportWhatsapp: true,
+      supportEmail: true,
+      instagramUrl: true,
+      youtubeUrl: true,
+      linkedinUrl: true,
+      termsContent: true,
+      privacyContent: true,
+      updatedAt: true,
+    },
+  });
+
+  return (
+    settings ?? {
+      platformName: 'ISOMÉTRICA',
+      logoUrl: null,
+      faviconUrl: null,
+      supportWhatsapp: null,
+      supportEmail: null,
+      instagramUrl: null,
+      youtubeUrl: null,
+      linkedinUrl: null,
+      termsContent: null,
+      privacyContent: null,
+      updatedAt: null,
+    }
+  );
+}
+
+export async function updatePlatformSettings(
+  data: UpdatePlatformSettingsInput,
+) {
+  return prisma.configuracaoPlataforma.upsert({
+    where: {
+      id: PLATFORM_SETTINGS_ID,
+    },
+    create: {
+      id: PLATFORM_SETTINGS_ID,
+      ...data,
+    },
+    update: data,
+    select: {
+      platformName: true,
+      logoUrl: true,
+      faviconUrl: true,
+      supportWhatsapp: true,
+      supportEmail: true,
+      instagramUrl: true,
+      youtubeUrl: true,
+      linkedinUrl: true,
+      termsContent: true,
+      privacyContent: true,
+      updatedAt: true,
+    },
+  });
 }
 
 export async function updateTrackingSettings(
