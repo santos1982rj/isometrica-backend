@@ -7,6 +7,8 @@ export const courseManagementSchema = z.object({
   descricao: z.string().min(10, 'Descrição obrigatória.'),
   resumo: z.string().optional().nullable(),
   imagem: z.string().optional().nullable(),
+  beneficios: z.string().optional().nullable(),
+  publicoAlvo: z.string().optional().nullable(),
   isPremium: z.boolean().default(true),
   preco: z.number().nonnegative().optional().nullable(),
   status: z.nativeEnum(StatusCurso).default(StatusCurso.RASCUNHO),

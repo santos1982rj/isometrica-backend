@@ -22,6 +22,8 @@ function coursePayload(data: CourseManagementInput) {
     descricao: data.descricao,
     resumo: data.resumo ?? null,
     imagem: data.imagem ?? null,
+    beneficios: data.beneficios ?? null,
+    publicoAlvo: data.publicoAlvo ?? null,
     isPremium: data.isPremium,
     preco: data.preco ?? null,
     status: data.status,
