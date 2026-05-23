@@ -1,5 +1,6 @@
 import { Router } from 'express';
 
+import { upload } from '../../config/multer';
 import { authMiddleware } from '../../core/middlewares/authMiddleware';
 import { validateRequest } from '../../core/middlewares/validateRequest';
 import {
@@ -9,6 +10,7 @@ import {
   listMyPurchasesController,
   refreshMyPurchaseController,
   updateMeController,
+  uploadAvatarController,
   updatePreferencesController,
   requestEmailVerificationController,
 } from './students.controller';
@@ -26,6 +28,12 @@ studentsRoutes.patch(
   authMiddleware,
   validateRequest(updateProfileSchema),
   updateMeController,
+);
+studentsRoutes.post(
+  '/me/avatar',
+  authMiddleware,
+  upload.single('avatar'),
+  uploadAvatarController,
 );
 studentsRoutes.post(
   '/me/email-verification',

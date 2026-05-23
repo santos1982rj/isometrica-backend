@@ -49,6 +49,18 @@ model User {
   email        String        @unique
   senha        String
   avatar       String?
+  headline     String?
+  location     String?
+  bio          String?       @db.Text
+  experience   String?       @db.Text
+  education    String?       @db.Text
+  skills       String?
+  interests    String?
+  linkedinUrl  String?
+  githubUrl    String?
+  portfolioUrl String?
+  instagramUrl String?
+  whatsapp     String?
   role         Role          @default(ALUNO)
   status       StatusUsuario @default(ATIVO)
   xpTotal      Int           @default(0)

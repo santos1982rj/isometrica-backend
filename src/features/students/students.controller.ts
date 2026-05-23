@@ -57,6 +57,26 @@ export async function updateMeController(
   });
 }
 
+export async function uploadAvatarController(
+  request: Request,
+  response: Response,
+) {
+  if (!request.file) {
+    throw new AppError('Imagem do avatar não enviada.', 400);
+  }
+
+  const user = await updateStudentProfile(
+    getAuthenticatedUserId(request),
+    {
+      avatar: `/uploads/${request.file.filename}`,
+    },
+  );
+
+  return response.status(200).json({
+    user,
+  });
+}
+
 export async function listMyPurchasesController(
   request: Request,
   response: Response,

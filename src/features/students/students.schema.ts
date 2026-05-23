@@ -1,8 +1,37 @@
 import { z } from 'zod';
 
+const nullableText = (max: number) =>
+  z.preprocess(
+    (value) => (typeof value === 'string' && value.trim() === '' ? null : value),
+    z.string().trim().max(max).nullable().optional(),
+  );
+
+const nullableUrl = z.preprocess(
+  (value) => (typeof value === 'string' && value.trim() === '' ? null : value),
+  z
+    .string()
+    .trim()
+    .max(500)
+    .refine((value) => /^https?:\/\//i.test(value), 'Informe uma URL começando com http:// ou https://.')
+    .nullable()
+    .optional(),
+);
+
 export const updateProfileSchema = z.object({
   nome: z.string().trim().min(2).optional(),
-  avatar: z.string().trim().url().nullable().optional(),
+  avatar: nullableText(500),
+  headline: nullableText(120),
+  location: nullableText(120),
+  bio: nullableText(800),
+  experience: nullableText(1600),
+  education: nullableText(1000),
+  skills: nullableText(500),
+  interests: nullableText(500),
+  linkedinUrl: nullableUrl,
+  githubUrl: nullableUrl,
+  portfolioUrl: nullableUrl,
+  instagramUrl: nullableUrl,
+  whatsapp: nullableText(40),
 });
 
 export const changePasswordSchema = z.object({
